@@ -26,33 +26,32 @@ class MemoryBank:
         feats:  [N,D]  on GPU
         labels: [N]    long on GPU
         """
-        # 1) bring bank → GPU & same dtype
-        bank_feats  = self.bank.to(feats.device).to(feats.dtype)      # [M,D]
-        bank_labels = self.label_bank.to(feats.device)               # [M]
+       
+        bank_feats  = self.bank.to(feats.device).to(feats.dtype)      
+        bank_labels = self.label_bank.to(feats.device)             
 
-        # 2) normalize
-        feats_norm = F.normalize(feats, dim=1)        # [N,D]
-        bank_norm  = F.normalize(bank_feats, dim=1)   # [M,D]
+        
+        feats_norm = F.normalize(feats, dim=1)       
+        bank_norm  = F.normalize(bank_feats, dim=1)   
 
-        # 3) cosine sims and scale by temperature
-        logits = feats_norm @ bank_norm.t() / self.temp  # [N,M]
+     
+        logits = feats_norm @ bank_norm.t() / self.temp  
 
-        # 4) for each query i, positives = bank_indices with same label
-        labels_q = labels.unsqueeze(1)           # [N,1]
-        labels_b = bank_labels.unsqueeze(0)      # [1,M]
-        pos_mask = labels_q.eq(labels_b)         # [N,M], boolean
+       
+        labels_q = labels.unsqueeze(1)           
+        labels_b = bank_labels.unsqueeze(0)      
+        pos_mask = labels_q.eq(labels_b)         
 
-        # 5) InfoNCE:  -log( ∑_{j∈Pos_i} exp(logits[i,j]) / ∑_{k} exp(logits[i,k]) )
-        exp_logits = logits.exp()                # [N,M]
-        # numerator: sum over positives (if none, we’ll skip those anchors)
-        pos_exp = (exp_logits * pos_mask.float()).sum(dim=1)    # [N]
-        all_exp = exp_logits.sum(dim=1)                        # [N]
+       
+        exp_logits = logits.exp()                
+     
+        pos_exp = (exp_logits * pos_mask.float()).sum(dim=1)    
+        all_exp = exp_logits.sum(dim=1)                        
 
-        # to avoid division by zero when no positives: mask them out
-        # compute loss_i only if pos_exp>0
+    
         nonzero_pos = pos_exp > 0
         loss = torch.zeros_like(pos_exp)
         loss[nonzero_pos] = - (pos_exp[nonzero_pos] / all_exp[nonzero_pos]).log()
 
-        # 6) return mean over valid anchors
+      
         return loss[nonzero_pos].mean()
