@@ -33,19 +33,19 @@ class TransformerAE(nn.Module):
 
     def forward(self, feat: torch.Tensor) -> torch.Tensor:
 
-        B, C, H, W = feat.shape        # 1) Downsample spatially by factor r
+        B, C, H, W = feat.shape       
         r = 8
         H_ds, W_ds = max(1, H // r), max(1, W // r)
         feat_ds = nn.functional.interpolate(feat, size=(H_ds, W_ds),
                                             mode="bilinear", align_corners=False)
-        # Flatten to (S, B, C) where S = H_ds * W_ds
+ 
         src = feat_ds.flatten(2).permute(2, 0, 1)
-        # Encode / Decode
+    
         mem = self.encoder(src)
         out = self.decoder(src, mem)
-        # restore spatial shape (B, C, H_ds, W_ds)
+      
         recon_ds = out.permute(1, 2, 0).view(B, C, H_ds, W_ds)
-        # 2) Upsample back to full resolution
+      
         recon = nn.functional.interpolate(recon_ds, size=(H, W),
                                           mode="bilinear", align_corners=False)
         return recon
