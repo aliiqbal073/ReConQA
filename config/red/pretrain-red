@@ -29,10 +29,10 @@ DATASETS:
   TRAIN: ('sowod_train',)
   TEST: []
 OPENSET:
-  ENABLE_REW: True
-  REW:
-    IN_LOOP_DENSITY: True    # enable our new density head
-    DENSITY_DIM: 128         # hidden size for density MLP
+  ENABLE_RED: True
+  RED:
+    IN_LOOP_DENSITY: True  
+    DENSITY_DIM: 128       
     
   ENABLE_OLN: False
   OLN_INFERENCE: False
