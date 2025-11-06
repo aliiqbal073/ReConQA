@@ -27,7 +27,7 @@ DATASETS:
   TRAIN: ("mowod_train_t1",)
   TEST: []
 OPENSET:
-  ENABLE_REW: True
+  ENABLE_RED: True
   ENABLE_OLN: False
   OLN_INFERENCE: False
   NUM_KNOWN_CLASSES: 20
