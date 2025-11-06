@@ -30,13 +30,12 @@ DATASETS:
   TEST: []
 
 OPENSET:
-  ENABLE_REW: True
+  ENABLE_RED: True
   ENABLE_OLN: False
   OLN_INFERENCE: False
   NUM_KNOWN_CLASSES: 60
   NUM_PREV_KNOWN_CLASSES: 0
   REW:
-    SAMPLING_ITERS: 2500      # (kept for reference, not used when UPDATE_WEIBULL=False)
-    UPDATE_WEIBULL: False     # disable the offline Weibull loop
-    IN_LOOP_DENSITY: True     # enable our new density head
-    DENSITY_DIM: 128          # hidden size of the MLP
+    SAMPLING_ITERS: 2500       
+    IN_LOOP_DENSITY: True     
+    DENSITY_DIM: 128          
