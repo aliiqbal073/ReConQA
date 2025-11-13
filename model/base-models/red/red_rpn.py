@@ -227,17 +227,17 @@ class OFFLINE_AE_RPN(nn.Module):
         feats = [features[f] for f in self.in_features]
         anchors = self.anchor_generator(feats)
 
-        # 2) RPN head → AE errors + error maps
+       
         err_by_lvl, err_map_by_lvl = self.rpn_head(feats)
 
-        # 3) Flatten AE errors per-level
+     
         flat_errs = [e.permute(0,2,3,1).flatten(1) for e in err_by_lvl]
 
         if self.training:
-            # 4) AE loss
+          
             losses = self.losses(flat_errs)
 
-            # 5) Density head (pixel-level)
+           
             if self.enable_rew and self.in_loop_density:
                 maps = [m.permute(0,2,3,1).flatten(1) for m in err_map_by_lvl]
                 pix = torch.cat(maps, dim=1)
@@ -260,12 +260,12 @@ class OFFLINE_AE_RPN(nn.Module):
                 losses["loss_density"] = F.binary_cross_entropy_with_logits(p_unk, mask)
             return losses
         else:
-            # inference: assign soft labels
+         
             self.assign_soft_label(images, gt_instances, err_map_by_lvl)
-            # treat GT as predictions so postprocess has boxes:
+          
             for inst in gt_instances:
-                inst.pred_boxes = inst.gt_boxes  # rename GT boxes to pred_boxes
-                # give them a dummy score of 1.0 so postprocess isn’t unhappy
+                inst.pred_boxes = inst.gt_boxes  
+                
                 inst.scores = torch.ones(len(inst.gt_boxes), device=inst.gt_boxes.tensor.device)
             return gt_instances
             
